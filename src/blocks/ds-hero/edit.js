@@ -620,7 +620,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
                 <div className="ds-hero__inner">
                     <div className="ds-hero__content">
                         <InnerBlocks
-                            allowedBlocks={ [ 'core/heading', 'core/paragraph', 'core/buttons', 'core/button', 'core/image' ] }
+                            allowedBlocks={ undefined }
                             template={ [
                                 [ 'core/paragraph', { placeholder: 'Añade tu contenido aquí...' } ],
                             ] }
