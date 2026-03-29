@@ -6,6 +6,9 @@ Monorepositorio para crear y gestionar bloques personalizados de Gutenberg para 
 
 ### DS Hero Block
 
+<img width="2203" height="591" alt="image" src="https://github.com/user-attachments/assets/9ab5f30f-dafb-4829-b340-fa996a7eca44" />
+
+
 Bloque Gutenberg para crear secciones hero con imagen con máscara PNG, fondo personalizable y contenido flexible.
 
 **Características:**
