@@ -1,6 +1,6 @@
 # Bloques Personalizados de WordPress
 
-Monorepositorio para crear y gestionar bloques personalizados de Gutenberg para WordPress, desarrollado con ayuda de IA.
+Monorepositorio para crear y gestionar bloques personalizados de Gutenberg para WordPress.
 
 ## Bloques Disponibles
 
