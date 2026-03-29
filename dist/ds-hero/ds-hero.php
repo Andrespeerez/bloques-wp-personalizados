@@ -39,7 +39,7 @@ function ds_hero_register_block() {
 		$asset_file['version']
 	);
 
-	register_block_type( __DIR__, array(
+	register_block_type( __DIR__ . '/blocks/ds-hero', array(
 		'editor_script' => 'ds-hero-editor',
 		'editor_style' => 'ds-hero-editor-style',
 		'style' => 'ds-hero-style',

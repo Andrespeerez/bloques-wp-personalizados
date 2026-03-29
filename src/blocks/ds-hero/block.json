@@ -156,7 +156,7 @@
 			"default": ""
 		}
 	},
-	"editorScript": "file:../../dist/ds-hero/index.js",
-	"editorStyle": "file:../../dist/ds-hero/index.css",
-	"style": "file:../../dist/ds-hero/style-index.css"
+  "editorScript": "file:../../index.js",
+  "editorStyle": "file:../../index.css",
+  "style": "file:../../style-index.css"
 }
