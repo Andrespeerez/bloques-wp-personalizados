@@ -46,7 +46,7 @@ Then activate the plugin from WordPress admin.
 // Good
 import { __ } from '@wordpress/i18n';
 import { useBlockProps, InnerBlocks, InspectorControls, MediaPlaceholder, MediaReplaceFlow } from '@wordpress/block-editor';
-import { PanelBody, SelectControl, RangeControl, ToggleControl, Button, BaseControl, ColorPicker } from '@wordpress/components';
+import { PanelBody, SelectControl, RangeControl, ToggleControl, Button, BaseControl, ColorPicker, TextareaControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import Edit from './edit';
 import save from './save';
@@ -58,29 +58,82 @@ import './style.scss';
 - Use functional components with `function` keyword (not arrow for export)
 - Always destructure props: `export default function Edit( { attributes, setAttributes } )`
 - Return JSX with parentheses for multi-line returns
-- Keep components under 200 lines; extract complex logic to helper functions
+- Use tabs for InspectorControls organization
 
 ```javascript
 // Good
 export default function Edit( { attributes, setAttributes } ) {
-    const { title, content, imageUrl } = attributes;
+    const { title, content, customCSS } = attributes;
     const [ activeTab, setActiveTab ] = useState( 'general' );
     
     const blockProps = useBlockProps( {
-        className: `ds-hero ds-hero--${ contentPosition }`,
+        className: `ds-hero`,
         style: { '--ds-bg-color': backgroundColor },
     } );
     
     return (
-        <div { ...blockProps }>
+        <>
             <InspectorControls>
-                <PanelBody title={ __( 'Settings', 'ds-hero' ) }>
-                    {/* controls */}
-                </PanelBody>
+                <InspectorTabs currentTab={ activeTab } onTabChange={ setActiveTab } />
+
+                { activeTab === 'general' && (
+                    <PanelBody title={ __( 'Content', 'ds-hero' ) }>
+                        {/* content controls */}
+                    </PanelBody>
+                ) }
+
+                { activeTab === 'style' && (
+                    <PanelBody title={ __( 'Background', 'ds-hero' ) }>
+                        {/* style controls */}
+                    </PanelBody>
+                ) }
+
+                { activeTab === 'advanced' && (
+                    <PanelBody title={ __( 'Custom CSS', 'ds-hero' ) }>
+                        <TextareaControl ... />
+                    </PanelBody>
+                ) }
             </InspectorControls>
-            <div className="ds-hero__inner">
+
+            { customCSS && <style>{ customCSS }</style> }
+
+            <div { ...blockProps }>
                 <InnerBlocks />
             </div>
+        </>
+    );
+}
+```
+
+### Inspector Tabs Pattern
+
+Organize InspectorControls into three tabs:
+
+| Tab | Contents |
+|-----|----------|
+| **General** | Main content settings, masked images, InnerBlocks |
+| **Style** | Colors, backgrounds, spacing, layout |
+| **Advanced** | Custom CSS, HTML anchor, visibility |
+
+```javascript
+function InspectorTabs( { currentTab, onTabChange } ) {
+    const tabs = [
+        { name: 'general', title: __( 'General', 'ds-hero' ) },
+        { name: 'style', title: __( 'Style', 'ds-hero' ) },
+        { name: 'advanced', title: __( 'Advanced', 'ds-hero' ) },
+    ];
+
+    return (
+        <div className="components-tab-panel__tabs">
+            { tabs.map( ( tab ) => (
+                <button
+                    key={ tab.name }
+                    className={ `components-tab-panel__tab ${ currentTab === tab.name ? 'is-active' : '' }` }
+                    onClick={ () => onTabChange( tab.name ) }
+                >
+                    { tab.title }
+                </button>
+            ) ) }
         </div>
     );
 }
@@ -92,18 +145,18 @@ export default function Edit( { attributes, setAttributes } ) {
 - Define types: `string`, `number`, `boolean`, `array`, `object`
 - Always provide `default` values
 - Responsive values use arrays: `[desktop, tablet, mobile]`
+- Include `customCSS` attribute for custom styling
 
 ```json
 {
     "apiVersion": 3,
     "name": "mis-bloques/ds-hero",
     "attributes": {
-        "title": { "type": "string", "default": "" },
-        "count": { "type": "number", "default": 0 },
-        "imageUrl": { "type": "string", "default": "" },
-        "imageId": { "type": "number", "default": 0 },
-        "paddingDesktop": { "type": "array", "default": [60, 40, 60, 40] },
-        "options": { "type": "object", "default": { "url": "", "id": 0 } }
+        "backgroundColor": { "type": "string", "default": "#0d1b3e" },
+        "maskedImageUrl": { "type": "string", "default": "" },
+        "maskImageUrl": { "type": "string", "default": "" },
+        "maskPositionPreset": { "type": "string", "default": "bottom right" },
+        "customCSS": { "type": "string", "default": "" }
     }
 }
 ```
@@ -114,7 +167,7 @@ export default function Edit( { attributes, setAttributes } ) {
 |---------|------------|---------|
 | Block name | `namespace/block-name` | `mis-bloques/ds-hero` |
 | CSS classes | BEM + kebab-case | `.ds-hero`, `.ds-hero__inner` |
-| CSS custom properties | `--prefix-` | `--ds-bg-color`, `--ds-mask-width` |
+| CSS custom properties | `--prefix-` | `--ds-bg-color`, `--ds-mask-image` |
 | Data attributes | `data-*` | `data-position="bottom right"` |
 | State classes | `--modifier` | `.ds-hero--content-left` |
 
@@ -122,7 +175,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 **File Structure:**
 - `style.scss` - Frontend styles (loaded on frontend + editor)
-- `editor.scss` - Editor-only styles (preview, UI)
+- `editor.scss` - Editor-only styles (preview, UI, tabs)
 
 **Styling Pattern:**
 Use CSS custom properties for dynamic values from attributes:
@@ -187,7 +240,7 @@ add_action( 'init', 'ds_hero_register_block' );
 block-name/
 ├── block.json         # Metadata, attributes, supports
 ├── index.js           # Block registration (registerBlockType)
-├── edit.js            # Editor component (InspectorControls + preview)
+├── edit.js            # Editor component (InspectorControls + tabs)
 ├── save.js            # Frontend render
 ├── style.scss         # Frontend styles
 ├── editor.scss        # Editor-only styles
@@ -231,9 +284,17 @@ CSS:
 }
 ```
 
+## Custom CSS Support
+
+```javascript
+// edit.js and save.js
+{ customCSS && <style>{ customCSS }</style> }
+```
+
 ## Common Issues
 
 - **Build fails**: Run `npm install` to ensure dependencies are installed
 - **Block not appearing**: Check `textdomain` in block.json matches plugin header
 - **Styles not applying**: Verify CSS custom properties match attribute names in JS
 - **Mask not working**: Ensure mask image is PNG with transparency
+- **Custom CSS not applying**: Verify `<style>` tag is rendered in save.js

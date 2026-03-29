@@ -14,6 +14,10 @@
 		"align": ["wide", "full"]
 	},
 	"attributes": {
+		"uniqueID": {
+			"type": "string",
+			"default": ""
+		},
 		"backgroundType": {
 			"type": "string",
 			"default": "color"
@@ -146,6 +150,10 @@
 		"minHeightMobile": {
 			"type": "number",
 			"default": 400
+		},
+		"customCSS": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"editorScript": "file:./build/index.js",

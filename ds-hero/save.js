@@ -6,6 +6,101 @@
  */
 import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 
+function generateBlockCSS( uniqueId, attributes ) {
+    const {
+        backgroundType,
+        backgroundColor,
+        backgroundGradient,
+        backgroundImage,
+        backgroundImagePosition,
+        backgroundImageSize,
+        overlayColor,
+        overlayOpacity,
+        maskEnabled,
+        maskImageUrl,
+        maskPositionPreset,
+        maskPositionX,
+        maskPositionY,
+        maskPositionXUnit,
+        maskPositionYUnit,
+        maskWidth,
+        maskHeight,
+        contentPosition,
+        verticalAlign,
+        paddingDesktop,
+        paddingTablet,
+        paddingMobile,
+    } = attributes;
+
+    let css = `.ds-hero-${ uniqueId } {\n`;
+    css += `    background-color: ${ backgroundColor || '#0d1b3e' };\n`;
+    
+    if ( backgroundType === 'gradient' && backgroundGradient ) {
+        css += `    background-image: ${ backgroundGradient };\n`;
+    } else if ( backgroundType === 'image' && backgroundImage?.url ) {
+        css += `    background-image: url(${ backgroundImage.url });\n`;
+        css += `    background-position: ${ backgroundImagePosition };\n`;
+        css += `    background-size: ${ backgroundImageSize };\n`;
+    }
+    
+    css += `    padding: ${ paddingDesktop[ 0 ] }px ${ paddingDesktop[ 1 ] }px ${ paddingDesktop[ 2 ] }px ${ paddingDesktop[ 3 ] }px;\n`;
+    css += `}\n\n`;
+
+    css += `.ds-hero-${ uniqueId }::before {\n`;
+    css += `    content: '';\n`;
+    css += `    position: absolute;\n`;
+    css += `    top: 0;\n`;
+    css += `    left: 0;\n`;
+    css += `    right: 0;\n`;
+    css += `    bottom: 0;\n`;
+    css += `    background-color: ${ overlayColor || 'transparent' };\n`;
+    css += `    opacity: ${ overlayOpacity };\n`;
+    css += `    z-index: 1;\n`;
+    css += `    pointer-events: none;\n`;
+    css += `}\n\n`;
+
+    css += `.ds-hero-${ uniqueId } .ds-hero__inner {\n`;
+    css += `    justify-content: ${ contentPosition === 'center' ? 'center' : ( contentPosition === 'right' ? 'flex-end' : 'flex-start' ) };\n`;
+    css += `    align-items: ${ verticalAlign === 'top' ? 'flex-start' : ( verticalAlign === 'bottom' ? 'flex-end' : 'center' ) };\n`;
+    css += `}\n\n`;
+
+    if ( maskEnabled && maskImageUrl ) {
+        css += `.ds-hero-${ uniqueId } .ds-hero__masked-image {\n`;
+        css += `    mask-image: url(${ maskImageUrl });\n`;
+        css += `    -webkit-mask-image: url(${ maskImageUrl });\n`;
+        css += `    width: ${ maskWidth }px;\n`;
+        css += `    height: ${ maskHeight }px;\n`;
+        css += `}\n\n`;
+
+        if ( maskPositionPreset === 'custom' ) {
+            css += `.ds-hero-${ uniqueId } .ds-hero__masked-image {\n`;
+            if ( maskPositionX !== '' ) {
+                css += `    left: ${ maskPositionX }${ maskPositionXUnit };\n`;
+                css += `    right: auto;\n`;
+            }
+            if ( maskPositionY !== '' ) {
+                css += `    top: ${ maskPositionY }${ maskPositionYUnit };\n`;
+                css += `    bottom: auto;\n`;
+            }
+            css += `}\n\n`;
+        }
+    }
+
+    css += `@media (max-width: 1024px) {\n`;
+    css += `    .ds-hero-${ uniqueId } {\n`;
+    css += `        padding: ${ paddingTablet[ 0 ] }px ${ paddingTablet[ 1 ] }px ${ paddingTablet[ 2 ] }px ${ paddingTablet[ 3 ] }px;\n`;
+    css += `    }\n`;
+    css += `}\n\n`;
+
+    css += `@media (max-width: 767px) {\n`;
+    css += `    .ds-hero-${ uniqueId } {\n`;
+    css += `        padding: ${ paddingMobile[ 0 ] }px ${ paddingMobile[ 1 ] }px ${ paddingMobile[ 2 ] }px ${ paddingMobile[ 3 ] }px;\n`;
+    css += `    }\n`;
+    css += `}\n`;
+
+    return css;
+}
+
 export default function save( { attributes } ) {
     const {
         backgroundType,
@@ -14,8 +109,6 @@ export default function save( { attributes } ) {
         backgroundImage,
         backgroundImagePosition,
         backgroundImageSize,
-        backgroundImageRepeat,
-        backgroundImageAttachment,
         overlayColor,
         overlayOpacity,
         maskEnabled,
@@ -31,6 +124,8 @@ export default function save( { attributes } ) {
         contentPosition,
         verticalAlign,
         paddingDesktop,
+        customCSS,
+        uniqueID,
     } = attributes;
 
     const getCustomPositionStyle = () => {
@@ -48,53 +143,56 @@ export default function save( { attributes } ) {
     };
 
     const blockProps = useBlockProps.save( {
-        className: `ds-hero ds-hero--content-${ contentPosition } ds-hero--vertical-${ verticalAlign }`,
-        'data-bg-type': backgroundType,
-        style: {
-            '--ds-bg-color': backgroundColor,
-            '--ds-bg-gradient': backgroundGradient,
-            '--ds-bg-image': backgroundImage?.url ? `url(${ backgroundImage.url })` : undefined,
-            '--ds-bg-position': backgroundImagePosition,
-            '--ds-bg-size': backgroundImageSize,
-            '--ds-bg-repeat': backgroundImageRepeat ? 'repeat' : 'no-repeat',
-            '--ds-bg-attachment': backgroundImageAttachment,
-            '--ds-overlay-color': overlayColor,
-            '--ds-overlay-opacity': overlayOpacity,
-            '--ds-mask-image': maskImageUrl ? `url(${ maskImageUrl })` : undefined,
-            '--ds-mask-size': 'cover',
-            '--ds-mask-width': maskWidth + 'px',
-            '--ds-mask-height': maskHeight + 'px',
-            '--ds-padding-top': paddingDesktop[ 0 ] + 'px',
-            '--ds-padding-right': paddingDesktop[ 1 ] + 'px',
-            '--ds-padding-bottom': paddingDesktop[ 2 ] + 'px',
-            '--ds-padding-left': paddingDesktop[ 3 ] + 'px',
-            '--ds-padding-top-tablet': attributes.paddingTablet[ 0 ] + 'px',
-            '--ds-padding-right-tablet': attributes.paddingTablet[ 1 ] + 'px',
-            '--ds-padding-bottom-tablet': attributes.paddingTablet[ 2 ] + 'px',
-            '--ds-padding-left-tablet': attributes.paddingTablet[ 3 ] + 'px',
-            '--ds-padding-top-mobile': attributes.paddingMobile[ 0 ] + 'px',
-            '--ds-padding-right-mobile': attributes.paddingMobile[ 1 ] + 'px',
-            '--ds-padding-bottom-mobile': attributes.paddingMobile[ 2 ] + 'px',
-            '--ds-padding-left-mobile': attributes.paddingMobile[ 3 ] + 'px',
-        },
+        className: `ds-hero${ uniqueID ? ' ds-hero-' + uniqueID : '' }`,
     } );
 
+    const blockCSS = uniqueID ? generateBlockCSS( uniqueID, {
+        backgroundType,
+        backgroundColor,
+        backgroundGradient,
+        backgroundImage,
+        backgroundImagePosition,
+        backgroundImageSize,
+        overlayColor,
+        overlayOpacity,
+        maskEnabled,
+        maskImageUrl,
+        maskPositionPreset,
+        maskPositionX,
+        maskPositionY,
+        maskPositionXUnit,
+        maskPositionYUnit,
+        maskWidth,
+        maskHeight,
+        contentPosition,
+        verticalAlign,
+        paddingDesktop,
+        paddingTablet: attributes.paddingTablet || [200, 24, 48, 24],
+        paddingMobile: attributes.paddingMobile || [180, 20, 40, 20],
+    } ) : '';
+    const fullCSS = blockCSS + ( customCSS || '' );
+
     return (
-        <div { ...blockProps }>
-            <div className="ds-hero__inner">
-                <div className="ds-hero__content">
-                    <InnerBlocks.Content />
-                </div>
-            </div>
-            { maskEnabled && maskedImageUrl && (
-                <div 
-                    className="ds-hero__masked-image" 
-                    data-position={ maskPositionPreset }
-                    style={ getCustomPositionStyle() }
-                >
-                    <img src={ maskedImageUrl } alt="" />
-                </div>
+        <>
+            { fullCSS && (
+                <style>{ fullCSS }</style>
             ) }
-        </div>
+            <div { ...blockProps }>
+                <div className="ds-hero__inner">
+                    <div className="ds-hero__content">
+                        <InnerBlocks.Content />
+                    </div>
+                </div>
+                { maskEnabled && maskedImageUrl && (
+                    <div 
+                        className="ds-hero__masked-image" 
+                        data-position={ maskPositionPreset }
+                        style={ getCustomPositionStyle() }
+                    >
+                        <img src={ maskedImageUrl } alt="" />
+                    </div>
+                ) }
+            </div>
+        </>
     );
 }
