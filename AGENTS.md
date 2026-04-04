@@ -12,6 +12,7 @@ Custom WordPress Gutenberg blocks built with `@wordpress/scripts` and AI assista
 | Crear bloques con renderizado PHP server-side | `server-side-render-blocks` | Bloques que renderizan en servidor con mock data para demo |
 | Crear/editar skills y consolidar conocimiento | `skill-manager` | Cómo crear nuevas skills, editar AGENTS.md, gestionar conocimiento |
 | Overview general de desarrollo de bloques | `gutenberg-blocks-development` | Estructura del proyecto, build commands, configuración webpack |
+| Verificar estructura del proyecto post-build | `build-verification` | Checklist para validar dist/, detectar carpetas no deseadas, verificar archivos de bloque |
 
 ## Available Skills
 
@@ -19,8 +20,9 @@ Carga estas skills cuando necesites:
 
 - **kadence-style-blocks**: InspectorControls con tabs, responsive settings (Desktop/Tablet/Mobile), CodeMirror CSS editor
 - **server-side-render-blocks**: PHP server render, mock data pattern, API integration, seguridad WordPress
-- **skill-manager**: Crear nuevas skills, actualizar AGENTS.md, workflow para documentación
+- **skill-manager**: Crear nuevas skills, actualizar AGENTS.md, gestionar conocimiento
 - **gutenberg-blocks-development**: Estructura del proyecto, webpack multi-bloque, commands
+- **build-verification**: Verificar estructura de dist/ post-build, checklist de archivos requeridos
 
 ## Project Structure
 
