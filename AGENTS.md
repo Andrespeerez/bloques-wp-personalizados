@@ -8,6 +8,7 @@ Custom WordPress Gutenberg blocks built with `@wordpress/scripts` and AI assista
 
 | Task | Skill | Description |
 |------|-------|-------------|
+| Depurar errores de bloques Gutenberg | `blocks-debugging` | PHP visible, bloque no aparece, error en editor, errores de build |
 | Crear bloques con InspectorControls tabs (General/Style/Advanced) | `kadence-style-blocks` | Bloques tipo Kadence con panels organizados en tabs, controles responsive |
 | Crear bloques con renderizado PHP server-side | `server-side-render-blocks` | Bloques que renderizan en servidor con mock data para demo |
 | Crear/editar skills y consolidar conocimiento | `skill-manager` | Cómo crear nuevas skills, editar AGENTS.md, gestionar conocimiento |
@@ -18,6 +19,7 @@ Custom WordPress Gutenberg blocks built with `@wordpress/scripts` and AI assista
 
 Carga estas skills cuando necesites:
 
+- **blocks-debugging**: PHP visible, bloque no aparece, "block has encountered an error", errores de webpack
 - **kadence-style-blocks**: InspectorControls con tabs, responsive settings (Desktop/Tablet/Mobile), CodeMirror CSS editor
 - **server-side-render-blocks**: PHP server render, mock data pattern, API integration, seguridad WordPress
 - **skill-manager**: Crear nuevas skills, actualizar AGENTS.md, gestionar conocimiento
