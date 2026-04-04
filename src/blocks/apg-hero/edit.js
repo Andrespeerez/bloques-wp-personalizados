@@ -121,7 +121,10 @@ function generateBlockCSS( uniqueId, attributes ) {
     css += `    pointer-events: none;\n`;
     css += `}\n\n`;
 
+    const cmw = contentMaxWidth || { value: 1200, unit: 'px' };
+    
     css += `.apg-hero-${ uniqueId } .apg-hero__inner {\n`;
+    css += `    max-width: ${ cmw.value }${ cmw.unit };\n`;
     css += `    justify-content: ${ contentPosition === 'center' ? 'center' : ( contentPosition === 'right' ? 'flex-end' : 'flex-start' ) };\n`;
     css += `    align-items: ${ verticalAlign === 'top' ? 'flex-start' : ( verticalAlign === 'bottom' ? 'flex-end' : 'center' ) };\n`;
     css += `}\n\n`;
@@ -209,6 +212,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         maskCustomPosition,
         maskWidth,
         maskHeight,
+        contentMaxWidth,
         contentPosition,
         verticalAlign,
         paddingDesktop,
@@ -724,6 +728,23 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
                         </PanelBody>
 
                         <PanelBody title={ __( 'Layout', 'apg-hero' ) } initialOpen={ false }>
+                            <p style={ { fontWeight: 'bold', margin: '0 0 8px 0' } }>{ __( 'Content Max Width', 'apg-hero' ) }</p>
+                            <div style={ { display: 'grid', gridTemplateColumns: '1fr auto 80px', gap: '8px', alignItems: 'center', marginBottom: '16px' } }>
+                                <input
+                                    type="number"
+                                    value={ contentMaxWidth?.value ?? 1200 }
+                                    onChange={ ( e ) => setAttributes( { contentMaxWidth: { ...contentMaxWidth, value: parseFloat( e.target.value ) || 0 } } ) }
+                                    min={ 0 }
+                                    style={ { width: '100%', padding: '4px 8px' } }
+                                />
+                                <SelectControl
+                                    value={ contentMaxWidth?.unit ?? 'px' }
+                                    options={ UNIT_OPTIONS }
+                                    onChange={ ( value ) => setAttributes( { contentMaxWidth: { ...contentMaxWidth, unit: value } } ) }
+                                    style={ { width: '60px', margin: 0 } }
+                                />
+                            </div>
+
                             <SelectControl
                                 label={ __( 'Content Position', 'apg-hero' ) }
                                 value={ contentPosition }

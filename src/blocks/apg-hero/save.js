@@ -56,7 +56,10 @@ function generateBlockCSS( uniqueId, attributes ) {
     css += `    pointer-events: none;\n`;
     css += `}\n\n`;
 
+    const cmw = contentMaxWidth || { value: 1200, unit: 'px' };
+    
     css += `.apg-hero-${ uniqueId } .apg-hero__inner {\n`;
+    css += `    max-width: ${ cmw.value }${ cmw.unit };\n`;
     css += `    justify-content: ${ contentPosition === 'center' ? 'center' : ( contentPosition === 'right' ? 'flex-end' : 'flex-start' ) };\n`;
     css += `    align-items: ${ verticalAlign === 'top' ? 'flex-start' : ( verticalAlign === 'bottom' ? 'flex-end' : 'center' ) };\n`;
     css += `}\n\n`;
@@ -142,6 +145,7 @@ export default function save( { attributes } ) {
         maskCustomPosition,
         maskWidth,
         maskHeight,
+        contentMaxWidth,
         contentPosition,
         verticalAlign,
         paddingDesktop,

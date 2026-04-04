@@ -112,13 +112,12 @@
 				"mobile": { "value": 60, "unit": "%" }
 			}
 		},
-		"contentWidth": {
-			"type": "string",
-			"default": "contained"
-		},
 		"contentMaxWidth": {
-			"type": "number",
-			"default": 1200
+			"type": "object",
+			"default": {
+				"value": 1200,
+				"unit": "px"
+			}
 		},
 		"contentPosition": {
 			"type": "string",
