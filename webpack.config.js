@@ -15,8 +15,8 @@ const copyBlockAssetsPlugin = () => ({
 					fs.mkdirSync(destDir, { recursive: true });
 				}
 
-				const extraFiles = blockName === 'apg-google-reviews' ? ['mock-data.php'] : [];
-				const filesToCopy = ['render.php', 'block.json', `${blockName}.php`, ...extraFiles];
+				const extraFiles = blockName === 'apg-google-reviews' ? ['mock-data.php', 'render.php'] : [];
+				const filesToCopy = ['block.json', `${blockName}.php`, ...extraFiles];
 				filesToCopy.forEach(file => {
 					const src = path.resolve(srcDir, file);
 					const dest = path.resolve(destDir, file);
@@ -25,15 +25,16 @@ const copyBlockAssetsPlugin = () => ({
 					}
 				});
 
-				const rootFiles = [
-					`${blockName}.css`,
-					`${blockName}-rtl.css`,
-					`style-${blockName}.css`,
-					`style-${blockName}-rtl.css`
-				];
-				rootFiles.forEach(file => {
-					const src = path.resolve(__dirname, 'dist', file);
-					const dest = path.resolve(destDir, file);
+				const cssRenameMap = {
+					[`${blockName}.css`]: 'index.css',
+					[`${blockName}-rtl.css`]: 'index-rtl.css',
+					[`style-${blockName}.css`]: 'style-index.css',
+					[`style-${blockName}-rtl.css`]: 'style-index-rtl.css',
+				};
+
+				Object.entries(cssRenameMap).forEach(([srcFile, destFile]) => {
+					const src = path.resolve(__dirname, 'dist', srcFile);
+					const dest = path.resolve(destDir, destFile);
 					if (fs.existsSync(src)) {
 						fs.copyFileSync(src, dest);
 						fs.unlinkSync(src);

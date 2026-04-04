@@ -22,6 +22,7 @@ function generateBlockCSS( uniqueId, attributes ) {
         maskCustomPosition,
         maskWidth,
         maskHeight,
+        contentMaxWidth,
         contentPosition,
         verticalAlign,
         paddingDesktop,

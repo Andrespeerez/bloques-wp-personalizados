@@ -156,7 +156,7 @@
 			"default": ""
 		}
 	},
-  "editorScript": "file:./index.js",
-  "editorStyle": "file:./editor.css",
-  "style": "file:./style.css"
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css"
 }

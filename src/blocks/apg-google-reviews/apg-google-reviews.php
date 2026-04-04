@@ -1,3 +1,4 @@
+<?php
 /**
  * Plugin Name:       APG Google Reviews Block
  * Description:       Bloque para cargar reseñas de Google Places
@@ -14,34 +15,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-function apg_google_reviews_register_block() {
-	$asset_file = include( plugin_dir_path( __FILE__ ) . 'index.asset.php' );
-
-	wp_register_script(
-		'apg-google-reviews-editor',
-		plugins_url( 'index.js', __FILE__ ),
-		$asset_file['dependencies'],
-		$asset_file['version']
-	);
-
-	wp_register_style(
-		'apg-google-reviews-editor-style',
-		plugins_url( 'index.css', __FILE__ ),
-		array(),
-		$asset_file['version']
-	);
-
-	wp_register_style(
-		'apg-google-reviews-style',
-		plugins_url( 'style-index.css', __FILE__ ),
-		array(),
-		$asset_file['version']
-	);
-
-	register_block_type( __DIR__, array(
-		'editor_script' => 'apg-google-reviews-editor',
-		'editor_style' => 'apg-google-reviews-editor-style',
-		'style' => 'apg-google-reviews-style',
-	) );
-}
-add_action( 'init', 'apg_google_reviews_register_block' );
+register_block_type( __DIR__ );
