@@ -2,27 +2,63 @@ const defaultConfig = require( '@wordpress/scripts/config/webpack.config' );
 const path = require( 'path' );
 const fs = require( 'fs' );
 
-const copyPhpFile = () => ({
+const blocks = ['ds-hero', 'testimonial'];
+
+const copyBlockAssetsPlugin = () => ({
 	apply(compiler) {
-		compiler.hooks.afterEmit.tap('CopyPhpFile', () => {
-			const src = path.resolve(__dirname, 'src/blocks/ds-hero/ds-hero.php');
-			const dest = path.resolve(__dirname, 'dist/ds-hero/ds-hero.php');
-			fs.copyFileSync(src, dest);
+		compiler.hooks.afterEmit.tap('CopyBlockAssets', () => {
+			blocks.forEach(blockName => {
+				const srcDir = path.resolve(__dirname, `src/blocks/${blockName}`);
+				const destDir = path.resolve(__dirname, `dist/${blockName}`);
+
+				if (!fs.existsSync(destDir)) {
+					fs.mkdirSync(destDir, { recursive: true });
+				}
+
+				const extraFiles = blockName === 'testimonial' ? ['mock-data.php'] : [];
+				const filesToCopy = ['render.php', 'block.json', `${blockName}.php`, ...extraFiles];
+				filesToCopy.forEach(file => {
+					const src = path.resolve(srcDir, file);
+					const dest = path.resolve(destDir, file);
+					if (fs.existsSync(src)) {
+						fs.copyFileSync(src, dest);
+					}
+				});
+
+				const rootFiles = [
+					`${blockName}.css`,
+					`${blockName}-rtl.css`,
+					`style-${blockName}.css`,
+					`style-${blockName}-rtl.css`
+				];
+				rootFiles.forEach(file => {
+					const src = path.resolve(__dirname, 'dist', file);
+					const dest = path.resolve(destDir, file);
+					if (fs.existsSync(src)) {
+						fs.copyFileSync(src, dest);
+						fs.unlinkSync(src);
+					}
+				});
+			});
 		});
 	}
 });
 
+const entries = {};
+blocks.forEach(block => {
+	entries[block] = `./src/blocks/${block}/index.js`;
+});
+
 module.exports = {
 	...defaultConfig,
-	entry: {
-		index: './src/blocks/ds-hero/index.js',
-	},
+	entry: entries,
 	output: {
 		...defaultConfig.output,
-		path: __dirname + '/dist/ds-hero',
+		path: path.resolve(__dirname, 'dist'),
+		filename: '[name]/index.js',
 	},
 	plugins: [
 		...defaultConfig.plugins,
-		copyPhpFile(),
+		copyBlockAssetsPlugin(),
 	],
 };
