@@ -14,32 +14,40 @@ if ( $is_demo ) {
     $mock_data = include __DIR__ . '/mock-data.php';
     $reviews = array_slice( $mock_data, 0, $cantidad );
 } else {
-    $api_url = add_query_arg(
-        [
-            'place_id' => $place_id,
-            'fields'   => 'reviews',
-            'key'      => $api_key,
-        ],
-        'https://maps.googleapis.com/maps/api/place/details/json'
-    );
+    $cache_key = 'apg_gr_cache_' . md5( $place_id . $api_key . $cantidad );
+    $cached_reviews = get_transient( $cache_key );
 
-    $response = wp_remote_get( $api_url, [ 'timeout' => 15 ] );
+    if ( false === $cached_reviews ) {
+        $api_url = add_query_arg(
+            [
+                'place_id' => $place_id,
+                'fields'   => 'reviews',
+                'key'      => $api_key,
+            ],
+            'https://maps.googleapis.com/maps/api/place/details/json'
+        );
 
-    if ( is_wp_error( $response ) ) {
-        echo '<div class="apg-google-reviews-error">Error: ' . esc_html( $response->get_error_message() ) . '</div>';
-        return;
+        $response = wp_remote_get( $api_url, [ 'timeout' => 15 ] );
+
+        if ( is_wp_error( $response ) ) {
+            echo '<div class="apg-google-reviews-error">Error: ' . esc_html( $response->get_error_message() ) . '</div>';
+            return;
+        }
+
+        $data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+        if ( ! isset( $data['result']['reviews'] ) || empty( $data['result']['reviews'] ) ) {
+            echo '<div class="apg-google-reviews-error">' . esc_html__( 'No se encontraron reseñas.', 'apg-google-reviews' ) . '</div>';
+            return;
+        }
+
+        $cached_reviews = $data['result']['reviews'];
+        usort( $cached_reviews, fn( $a, $b ) => $b['time'] - $a['time'] );
+
+        set_transient( $cache_key, $cached_reviews, DAY_IN_SECONDS );
     }
 
-    $data = json_decode( wp_remote_retrieve_body( $response ), true );
-
-    if ( ! isset( $data['result']['reviews'] ) || empty( $data['result']['reviews'] ) ) {
-        echo '<div class="apg-google-reviews-error">' . esc_html__( 'No se encontraron reseñas.', 'apg-google-reviews' ) . '</div>';
-        return;
-    }
-
-    $reviews = $data['result']['reviews'];
-    usort( $reviews, fn( $a, $b ) => $b['time'] - $a['time'] );
-    $reviews = array_slice( $reviews, 0, $cantidad );
+    $reviews = array_slice( $cached_reviews, 0, $cantidad );
 }
 ?>
 <section class="apg-google-reviews-<?php echo esc_attr( $unique_id ); ?>">
