@@ -4,7 +4,7 @@ Monorepositorio para crear y gestionar bloques personalizados de Gutenberg para 
 
 ## Bloques Disponibles
 
-### DS Hero Block
+### APG Hero Block
 
 <img width="2203" height="591" alt="image" src="https://github.com/user-attachments/assets/9ab5f30f-dafb-4829-b340-fa996a7eca44" />
 
@@ -53,7 +53,7 @@ bloques_personalizados/          # Monorepositorio
 ├── package.json                 # Dependencias compartidas
 ├── webpack.config.js            # Config de build
 ├── src/blocks/                  # Código fuente (desarrollo)
-│   └── ds-hero/
+│   └── apg-hero/
 │       ├── block.json
 │       ├── index.js
 │       ├── edit.js
@@ -62,8 +62,8 @@ bloques_personalizados/          # Monorepositorio
 │       ├── style.scss
 │       └── editor.scss
 └── dist/                       # Build output (listo para producción)
-    └── ds-hero/
-        ├── ds-hero.php
+    └── apg-hero/
+        ├── apg-hero.php
         ├── index.js
         ├── index.asset.php
         ├── index.css
