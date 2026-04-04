@@ -40,6 +40,11 @@ const copyBlockAssetsPlugin = () => ({
 					}
 				});
 			});
+
+			const blocksDir = path.resolve(__dirname, 'dist/blocks');
+			if (fs.existsSync(blocksDir)) {
+				fs.rmSync(blocksDir, { recursive: true, force: true });
+			}
 		});
 	}
 });

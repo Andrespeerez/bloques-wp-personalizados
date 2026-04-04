@@ -1,13 +1,144 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-"name": "apg/google-reviews",
+	"name": "apg/google-reviews",
 	"version": "0.1.0",
 	"title": "APG Google Reviews",
 	"category": "design",
 	"icon": "smiley",
-	"description": "Bloque para cargar reseñas google de un negocio.",
+	"description": "Bloque para cargar reseñas de Google Places con preview editable.",
 	"textdomain": "apg-google-reviews",
+	"supports": {
+		"html": false,
+		"anchor": true,
+		"align": ["wide", "full"]
+	},
+	"attributes": {
+		"uniqueID": {
+			"type": "string",
+			"default": ""
+		},
+		"placeId": {
+			"type": "string",
+			"default": ""
+		},
+		"apiKey": {
+			"type": "string",
+			"default": ""
+		},
+		"cantidad": {
+			"type": "number",
+			"default": 4
+		},
+		"cardBackgroundColor": {
+			"type": "string",
+			"default": "#ffffff"
+		},
+		"cardTextColor": {
+			"type": "string",
+			"default": "#1a1a1a"
+		},
+		"cardBorderRadius": {
+			"type": "number",
+			"default": 12
+		},
+		"cardBorderRadiusTablet": {
+			"type": "number",
+			"default": 12
+		},
+		"cardBorderRadiusMobile": {
+			"type": "number",
+			"default": 12
+		},
+		"cardPaddingDesktop": {
+			"type": "array",
+			"default": [20, 20, 20, 20]
+		},
+		"cardPaddingTablet": {
+			"type": "array",
+			"default": [16, 16, 16, 16]
+		},
+		"cardPaddingMobile": {
+			"type": "array",
+			"default": [16, 16, 16, 16]
+		},
+		"cardBorderWidth": {
+			"type": "number",
+			"default": 0
+		},
+		"cardBorderColor": {
+			"type": "string",
+			"default": "#e5e5e5"
+		},
+		"avatarSize": {
+			"type": "number",
+			"default": 48
+		},
+		"avatarBorderRadius": {
+			"type": "number",
+			"default": 50
+		},
+		"nameFontSize": {
+			"type": "number",
+			"default": 16
+		},
+		"nameFontWeight": {
+			"type": "string",
+			"default": "600"
+		},
+		"textFontSize": {
+			"type": "number",
+			"default": 14
+		},
+		"textLineHeight": {
+			"type": "number",
+			"default": 1.6
+		},
+		"timeFontSize": {
+			"type": "number",
+			"default": 12
+		},
+		"starColor": {
+			"type": "string",
+			"default": "#fbbf24"
+		},
+		"starEmptyColor": {
+			"type": "string",
+			"default": "#d1d5db"
+		},
+		"gapDesktop": {
+			"type": "number",
+			"default": 20
+		},
+		"gapTablet": {
+			"type": "number",
+			"default": 16
+		},
+		"gapMobile": {
+			"type": "number",
+			"default": 12
+		},
+		"layout": {
+			"type": "string",
+			"default": "list"
+		},
+		"columnsDesktop": {
+			"type": "number",
+			"default": 2
+		},
+		"columnsTablet": {
+			"type": "number",
+			"default": 1
+		},
+		"columnsMobile": {
+			"type": "number",
+			"default": 1
+		},
+		"customCSS": {
+			"type": "string",
+			"default": ""
+		}
+	},
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./editor.css",
 	"style": "file:./style.css",

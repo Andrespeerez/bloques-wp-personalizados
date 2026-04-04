@@ -1,12 +1,72 @@
-/**
- * The following styles get applied both on the front of your site
- * and in the editor.
- *
- * Replace them with your own styles or remove the file completely.
- */
+.apg-google-reviews-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 
-.wp-block-apg-google-reviews {
-	background-color: #21759b;
-	color: #fff;
-	padding: 2px;
+.apg-google-reviews-card {
+    background-color: var(--apg-card-bg, #ffffff);
+    color: var(--apg-card-text, #1a1a1a);
+    border-radius: var(--apg-card-radius, 12px);
+    border-width: var(--apg-card-border-width, 0);
+    border-color: var(--apg-card-border-color, #e5e5e5);
+    border-style: solid;
+    padding: var(--apg-card-padding, 20px);
+}
+
+.apg-google-reviews-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.apg-google-reviews-avatar {
+    width: var(--apg-avatar-size, 48px);
+    height: var(--apg-avatar-size, 48px);
+    border-radius: var(--apg-avatar-radius, 50%);
+    object-fit: cover;
+}
+
+.apg-google-reviews-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.apg-google-reviews-name {
+    font-size: var(--apg-name-size, 16px);
+    font-weight: var(--apg-name-weight, 600);
+    color: var(--apg-card-text, #1a1a1a);
+}
+
+.apg-google-reviews-rating {
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--apg-star-color, #fbbf24);
+}
+
+.apg-google-reviews-rating span:nth-child(n+6) {
+    color: var(--apg-star-empty, #d1d5db);
+}
+
+.apg-google-reviews-text {
+    font-size: var(--apg-text-size, 14px);
+    line-height: var(--apg-text-line-height, 1.6);
+    color: var(--apg-card-text, #1a1a1a);
+    margin: 0 0 12px 0;
+}
+
+.apg-google-reviews-time {
+    font-size: var(--apg-time-size, 12px);
+    color: #666;
+}
+
+.apg-google-reviews-error {
+    padding: 20px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    color: #dc2626;
+    text-align: center;
 }
