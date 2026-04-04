@@ -84,10 +84,7 @@ function generateBlockCSS( uniqueId, attributes ) {
         maskEnabled,
         maskImageUrl,
         maskPositionPreset,
-        maskPositionX,
-        maskPositionY,
-        maskPositionXUnit,
-        maskPositionYUnit,
+        maskCustomPosition,
         maskWidth,
         maskHeight,
         contentPosition,
@@ -130,25 +127,52 @@ function generateBlockCSS( uniqueId, attributes ) {
     css += `}\n\n`;
 
     if ( maskEnabled && maskImageUrl ) {
+        const maskW = maskWidth?.desktop || { value: 480, unit: 'px' };
+        const maskH = maskHeight?.desktop || { value: 420, unit: 'px' };
+        
         css += `.apg-hero-${ uniqueId } .apg-hero__masked-image {\n`;
         css += `    mask-image: url(${ maskImageUrl });\n`;
         css += `    -webkit-mask-image: url(${ maskImageUrl });\n`;
-        css += `    width: ${ maskWidth }px;\n`;
-        css += `    height: ${ maskHeight }px;\n`;
-        css += `}\n\n`;
-
-        if ( maskPositionPreset === 'custom' ) {
-            css += `.apg-hero-${ uniqueId } .apg-hero__masked-image {\n`;
-            if ( maskPositionX !== '' ) {
-                css += `    left: ${ maskPositionX }${ maskPositionXUnit };\n`;
+        css += `    width: ${ maskW.value }${ maskW.unit };\n`;
+        css += `    height: ${ maskH.value }${ maskH.unit };\n`;
+        
+        if ( maskPositionPreset === 'custom' && maskCustomPosition ) {
+            if ( maskCustomPosition.left?.value !== '' ) {
+                css += `    left: ${ maskCustomPosition.left.value }${ maskCustomPosition.left.unit };\n`;
                 css += `    right: auto;\n`;
             }
-            if ( maskPositionY !== '' ) {
-                css += `    top: ${ maskPositionY }${ maskPositionYUnit };\n`;
+            if ( maskCustomPosition.right?.value !== '' ) {
+                css += `    right: ${ maskCustomPosition.right.value }${ maskCustomPosition.right.unit };\n`;
+                css += `    left: auto;\n`;
+            }
+            if ( maskCustomPosition.top?.value !== '' ) {
+                css += `    top: ${ maskCustomPosition.top.value }${ maskCustomPosition.top.unit };\n`;
                 css += `    bottom: auto;\n`;
             }
-            css += `}\n\n`;
+            if ( maskCustomPosition.bottom?.value !== '' ) {
+                css += `    bottom: ${ maskCustomPosition.bottom.value }${ maskCustomPosition.bottom.unit };\n`;
+                css += `    top: auto;\n`;
+            }
         }
+        css += `}\n\n`;
+
+        const maskWTablet = maskWidth?.tablet || { value: 80, unit: '%' };
+        const maskHTablet = maskHeight?.tablet || { value: 50, unit: '%' };
+        css += `@media (max-width: 1024px) {\n`;
+        css += `    .apg-hero-${ uniqueId } .apg-hero__masked-image {\n`;
+        css += `        width: ${ maskWTablet.value }${ maskWTablet.unit };\n`;
+        css += `        height: ${ maskHTablet.value }${ maskHTablet.unit };\n`;
+        css += `    }\n`;
+        css += `}\n\n`;
+
+        const maskWMobile = maskWidth?.mobile || { value: 100, unit: '%' };
+        const maskHMobile = maskHeight?.mobile || { value: 60, unit: '%' };
+        css += `@media (max-width: 767px) {\n`;
+        css += `    .apg-hero-${ uniqueId } .apg-hero__masked-image {\n`;
+        css += `        width: ${ maskWMobile.value }${ maskWMobile.unit };\n`;
+        css += `        height: ${ maskHMobile.value }${ maskHMobile.unit };\n`;
+        css += `    }\n`;
+        css += `}\n`;
     }
 
     css += `@media (max-width: 1024px) {\n`;
@@ -182,10 +206,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         maskImageUrl,
         maskImageId,
         maskPositionPreset,
-        maskPositionX,
-        maskPositionY,
-        maskPositionXUnit,
-        maskPositionYUnit,
+        maskCustomPosition,
         maskWidth,
         maskHeight,
         contentPosition,
@@ -199,6 +220,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
     const [ deviceType, setDeviceType ] = useState( 'desktop' );
     const [ activeTab, setActiveTab ] = useState( 'general' );
+    const [ maskDeviceType, setMaskDeviceType ] = useState( 'desktop' );
 
     useEffect( () => {
         if ( ! uniqueID ) {
@@ -225,15 +247,115 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         }
     };
 
+    const getMaskSize = () => {
+        if ( maskDeviceType === 'mobile' ) return maskHeight?.mobile || { value: 60, unit: '%' };
+        if ( maskDeviceType === 'tablet' ) return maskHeight?.tablet || { value: 50, unit: '%' };
+        return maskHeight?.desktop || { value: 420, unit: 'px' };
+    };
+
+    const getMaskWidthValue = () => {
+        if ( maskDeviceType === 'mobile' ) return maskWidth?.mobile?.value ?? 100;
+        if ( maskDeviceType === 'tablet' ) return maskWidth?.tablet?.value ?? 80;
+        return maskWidth?.desktop?.value ?? 480;
+    };
+
+    const getMaskWidthUnit = () => {
+        if ( maskDeviceType === 'mobile' ) return maskWidth?.mobile?.unit ?? '%';
+        if ( maskDeviceType === 'tablet' ) return maskWidth?.tablet?.unit ?? '%';
+        return maskWidth?.desktop?.unit ?? 'px';
+    };
+
+    const getMaskHeightValue = () => {
+        if ( maskDeviceType === 'mobile' ) return maskHeight?.mobile?.value ?? 60;
+        if ( maskDeviceType === 'tablet' ) return maskHeight?.tablet?.value ?? 50;
+        return maskHeight?.desktop?.value ?? 420;
+    };
+
+    const getMaskHeightUnit = () => {
+        if ( maskDeviceType === 'mobile' ) return maskHeight?.mobile?.unit ?? '%';
+        if ( maskDeviceType === 'tablet' ) return maskHeight?.tablet?.unit ?? '%';
+        return maskHeight?.desktop?.unit ?? 'px';
+    };
+
+    const updateMaskWidth = ( value ) => {
+        const newWidth = { ...maskWidth };
+        if ( maskDeviceType === 'mobile' ) {
+            newWidth.mobile = { ...newWidth.mobile, value: parseFloat( value ) || 0 };
+        } else if ( maskDeviceType === 'tablet' ) {
+            newWidth.tablet = { ...newWidth.tablet, value: parseFloat( value ) || 0 };
+        } else {
+            newWidth.desktop = { ...newWidth.desktop, value: parseFloat( value ) || 0 };
+        }
+        setAttributes( { maskWidth: newWidth } );
+    };
+
+    const updateMaskWidthUnit = ( unit ) => {
+        const newWidth = { ...maskWidth };
+        if ( maskDeviceType === 'mobile' ) {
+            newWidth.mobile = { ...newWidth.mobile, unit };
+        } else if ( maskDeviceType === 'tablet' ) {
+            newWidth.tablet = { ...newWidth.tablet, unit };
+        } else {
+            newWidth.desktop = { ...newWidth.desktop, unit };
+        }
+        setAttributes( { maskWidth: newWidth } );
+    };
+
+    const updateMaskHeight = ( value ) => {
+        const newHeight = { ...maskHeight };
+        if ( maskDeviceType === 'mobile' ) {
+            newHeight.mobile = { ...newHeight.mobile, value: parseFloat( value ) || 0 };
+        } else if ( maskDeviceType === 'tablet' ) {
+            newHeight.tablet = { ...newHeight.tablet, value: parseFloat( value ) || 0 };
+        } else {
+            newHeight.desktop = { ...newHeight.desktop, value: parseFloat( value ) || 0 };
+        }
+        setAttributes( { maskHeight: newHeight } );
+    };
+
+    const updateMaskHeightUnit = ( unit ) => {
+        const newHeight = { ...maskHeight };
+        if ( maskDeviceType === 'mobile' ) {
+            newHeight.mobile = { ...newHeight.mobile, unit };
+        } else if ( maskDeviceType === 'tablet' ) {
+            newHeight.tablet = { ...newHeight.tablet, unit };
+        } else {
+            newHeight.desktop = { ...newHeight.desktop, unit };
+        }
+        setAttributes( { maskHeight: newHeight } );
+    };
+
+    const updateMaskPosition = ( side, value ) => {
+        const newPosition = { ...maskCustomPosition };
+        newPosition[ side ] = { ...newPosition[ side ], value: value };
+        setAttributes( { maskCustomPosition: newPosition } );
+    };
+
+    const updateMaskPositionUnit = ( side, unit ) => {
+        const newPosition = { ...maskCustomPosition };
+        newPosition[ side ] = { ...newPosition[ side ], unit };
+        setAttributes( { maskCustomPosition: newPosition } );
+    };
+
     const getCustomPositionStyle = () => {
         const css = {};
-        if ( maskPositionX !== '' && maskPositionPreset === 'custom' ) {
-            css.left = maskPositionX + maskPositionXUnit;
+        if ( maskPositionPreset !== 'custom' || !maskCustomPosition ) return css;
+        
+        if ( maskCustomPosition.left?.value !== '' ) {
+            css.left = maskCustomPosition.left.value + maskCustomPosition.left.unit;
             css.right = 'auto';
         }
-        if ( maskPositionY !== '' && maskPositionPreset === 'custom' ) {
-            css.top = maskPositionY + maskPositionYUnit;
+        if ( maskCustomPosition.right?.value !== '' ) {
+            css.right = maskCustomPosition.right.value + maskCustomPosition.right.unit;
+            css.left = 'auto';
+        }
+        if ( maskCustomPosition.top?.value !== '' ) {
+            css.top = maskCustomPosition.top.value + maskCustomPosition.top.unit;
             css.bottom = 'auto';
+        }
+        if ( maskCustomPosition.bottom?.value !== '' ) {
+            css.bottom = maskCustomPosition.bottom.value + maskCustomPosition.bottom.unit;
+            css.top = 'auto';
         }
         return css;
     };
@@ -340,45 +462,135 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
                                 />
 
                                 { maskPositionPreset === 'custom' && (
-                                    <div style={ { display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '8px', alignItems: 'center', marginTop: '16px' } }>
-                                        <RangeControl
-                                            label={ __( 'X', 'apg-hero' ) }
-                                            value={ maskPositionX }
-                                            onChange={ ( value ) => setAttributes( { maskPositionX: value } ) }
-                                            min={ 0 }
-                                            max={ 100 }
-                                        />
-                                        <SelectControl
-                                            value={ maskPositionXUnit }
-                                            options={ UNIT_OPTIONS }
-                                            onChange={ ( value ) => setAttributes( { maskPositionXUnit: value } ) }
-                                            style={ { width: '60px' } }
-                                        />
-                                        <RangeControl
-                                            label={ __( 'Y', 'apg-hero' ) }
-                                            value={ maskPositionY }
-                                            onChange={ ( value ) => setAttributes( { maskPositionY: value } ) }
-                                            min={ 0 }
-                                            max={ 100 }
-                                        />
+                                    <div style={ { marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' } }>
+                                        <p style={ { fontWeight: 'bold', margin: '0 0 8px 0' } }>{ __( 'Custom Position', 'apg-hero' ) }</p>
+                                        <div style={ { display: 'grid', gridTemplateColumns: '1fr auto 80px', gap: '8px', alignItems: 'center' } }>
+                                            <span style={ { fontSize: '12px' } }>{ __( 'Left', 'apg-hero' ) }</span>
+                                            <input
+                                                type="number"
+                                                value={ maskCustomPosition?.left?.value ?? '' }
+                                                onChange={ ( e ) => updateMaskPosition( 'left', e.target.value ) }
+                                                placeholder="0"
+                                                style={ { width: '80px', padding: '4px 8px' } }
+                                            />
+                                            <SelectControl
+                                                value={ maskCustomPosition?.left?.unit ?? '%' }
+                                                options={ UNIT_OPTIONS }
+                                                onChange={ ( value ) => updateMaskPositionUnit( 'left', value ) }
+                                                style={ { width: '60px', margin: 0 } }
+                                            />
+                                        </div>
+                                        <div style={ { display: 'grid', gridTemplateColumns: '1fr auto 80px', gap: '8px', alignItems: 'center' } }>
+                                            <span style={ { fontSize: '12px' } }>{ __( 'Right', 'apg-hero' ) }</span>
+                                            <input
+                                                type="number"
+                                                value={ maskCustomPosition?.right?.value ?? '' }
+                                                onChange={ ( e ) => updateMaskPosition( 'right', e.target.value ) }
+                                                placeholder="0"
+                                                style={ { width: '80px', padding: '4px 8px' } }
+                                            />
+                                            <SelectControl
+                                                value={ maskCustomPosition?.right?.unit ?? '%' }
+                                                options={ UNIT_OPTIONS }
+                                                onChange={ ( value ) => updateMaskPositionUnit( 'right', value ) }
+                                                style={ { width: '60px', margin: 0 } }
+                                            />
+                                        </div>
+                                        <div style={ { display: 'grid', gridTemplateColumns: '1fr auto 80px', gap: '8px', alignItems: 'center' } }>
+                                            <span style={ { fontSize: '12px' } }>{ __( 'Top', 'apg-hero' ) }</span>
+                                            <input
+                                                type="number"
+                                                value={ maskCustomPosition?.top?.value ?? '' }
+                                                onChange={ ( e ) => updateMaskPosition( 'top', e.target.value ) }
+                                                placeholder="0"
+                                                style={ { width: '80px', padding: '4px 8px' } }
+                                            />
+                                            <SelectControl
+                                                value={ maskCustomPosition?.top?.unit ?? '%' }
+                                                options={ UNIT_OPTIONS }
+                                                onChange={ ( value ) => updateMaskPositionUnit( 'top', value ) }
+                                                style={ { width: '60px', margin: 0 } }
+                                            />
+                                        </div>
+                                        <div style={ { display: 'grid', gridTemplateColumns: '1fr auto 80px', gap: '8px', alignItems: 'center' } }>
+                                            <span style={ { fontSize: '12px' } }>{ __( 'Bottom', 'apg-hero' ) }</span>
+                                            <input
+                                                type="number"
+                                                value={ maskCustomPosition?.bottom?.value ?? '' }
+                                                onChange={ ( e ) => updateMaskPosition( 'bottom', e.target.value ) }
+                                                placeholder="0"
+                                                style={ { width: '80px', padding: '4px 8px' } }
+                                            />
+                                            <SelectControl
+                                                value={ maskCustomPosition?.bottom?.unit ?? '%' }
+                                                options={ UNIT_OPTIONS }
+                                                onChange={ ( value ) => updateMaskPositionUnit( 'bottom', value ) }
+                                                style={ { width: '60px', margin: 0 } }
+                                            />
+                                        </div>
                                     </div>
                                 ) }
 
-                                <div style={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' } }>
-                                    <RangeControl
-                                        label={ __( 'Width (px)', 'apg-hero' ) }
-                                        value={ maskWidth }
-                                        onChange={ ( value ) => setAttributes( { maskWidth: value } ) }
-                                        min={ 50 }
-                                        max={ 1000 }
-                                    />
-                                    <RangeControl
-                                        label={ __( 'Height (px)', 'apg-hero' ) }
-                                        value={ maskHeight }
-                                        onChange={ ( value ) => setAttributes( { maskHeight: value } ) }
-                                        min={ 50 }
-                                        max={ 1000 }
-                                    />
+                                <div style={ { marginTop: '16px' } }>
+                                    <p style={ { fontWeight: 'bold', margin: '0 0 8px 0' } }>{ __( 'Size', 'apg-hero' ) }</p>
+                                    <BaseControl label={ __( 'Device', 'apg-hero' ) } style={ { marginBottom: '8px' } }>
+                                        <Button
+                                            isPressed={ maskDeviceType === 'desktop' }
+                                            onClick={ () => setMaskDeviceType( 'desktop' ) }
+                                            variant="secondary"
+                                            style={ { marginRight: '4px' } }
+                                        >
+                                            D
+                                        </Button>
+                                        <Button
+                                            isPressed={ maskDeviceType === 'tablet' }
+                                            onClick={ () => setMaskDeviceType( 'tablet' ) }
+                                            variant="secondary"
+                                            style={ { marginRight: '4px' } }
+                                        >
+                                            T
+                                        </Button>
+                                        <Button
+                                            isPressed={ maskDeviceType === 'mobile' }
+                                            onClick={ () => setMaskDeviceType( 'mobile' ) }
+                                            variant="secondary"
+                                        >
+                                            M
+                                        </Button>
+                                    </BaseControl>
+
+                                    <div style={ { display: 'grid', gridTemplateColumns: '1fr auto 80px', gap: '8px', alignItems: 'center' } }>
+                                        <span style={ { fontSize: '12px' } }>{ __( 'Width', 'apg-hero' ) }</span>
+                                        <input
+                                            type="number"
+                                            value={ getMaskWidthValue() }
+                                            onChange={ ( e ) => updateMaskWidth( e.target.value ) }
+                                            min={ 0 }
+                                            style={ { width: '80px', padding: '4px 8px' } }
+                                        />
+                                        <SelectControl
+                                            value={ getMaskWidthUnit() }
+                                            options={ UNIT_OPTIONS }
+                                            onChange={ updateMaskWidthUnit }
+                                            style={ { width: '60px', margin: 0 } }
+                                        />
+                                    </div>
+                                    <div style={ { display: 'grid', gridTemplateColumns: '1fr auto 80px', gap: '8px', alignItems: 'center', marginTop: '8px' } }>
+                                        <span style={ { fontSize: '12px' } }>{ __( 'Height', 'apg-hero' ) }</span>
+                                        <input
+                                            type="number"
+                                            value={ getMaskHeightValue() }
+                                            onChange={ ( e ) => updateMaskHeight( e.target.value ) }
+                                            min={ 0 }
+                                            style={ { width: '80px', padding: '4px 8px' } }
+                                        />
+                                        <SelectControl
+                                            value={ getMaskHeightUnit() }
+                                            options={ UNIT_OPTIONS }
+                                            onChange={ updateMaskHeightUnit }
+                                            style={ { width: '60px', margin: 0 } }
+                                        />
+                                    </div>
                                 </div>
                             </>
                         ) }

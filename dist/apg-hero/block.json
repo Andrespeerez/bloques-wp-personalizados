@@ -87,29 +87,30 @@
 			"type": "string",
 			"default": "bottom right"
 		},
-		"maskPositionX": {
-			"type": "number",
-			"default": ""
-		},
-		"maskPositionY": {
-			"type": "number",
-			"default": ""
-		},
-		"maskPositionXUnit": {
-			"type": "string",
-			"default": "%"
-		},
-		"maskPositionYUnit": {
-			"type": "string",
-			"default": "%"
+		"maskCustomPosition": {
+			"type": "object",
+			"default": {
+				"left": { "value": "", "unit": "%" },
+				"right": { "value": "", "unit": "%" },
+				"top": { "value": "", "unit": "%" },
+				"bottom": { "value": "", "unit": "%" }
+			}
 		},
 		"maskWidth": {
-			"type": "number",
-			"default": 480
+			"type": "object",
+			"default": {
+				"desktop": { "value": 480, "unit": "px" },
+				"tablet": { "value": 80, "unit": "%" },
+				"mobile": { "value": 100, "unit": "%" }
+			}
 		},
 		"maskHeight": {
-			"type": "number",
-			"default": 420
+			"type": "object",
+			"default": {
+				"desktop": { "value": 420, "unit": "px" },
+				"tablet": { "value": 50, "unit": "%" },
+				"mobile": { "value": 60, "unit": "%" }
+			}
 		},
 		"contentWidth": {
 			"type": "string",

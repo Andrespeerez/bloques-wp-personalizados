@@ -19,10 +19,7 @@ function generateBlockCSS( uniqueId, attributes ) {
         maskEnabled,
         maskImageUrl,
         maskPositionPreset,
-        maskPositionX,
-        maskPositionY,
-        maskPositionXUnit,
-        maskPositionYUnit,
+        maskCustomPosition,
         maskWidth,
         maskHeight,
         contentPosition,
@@ -65,25 +62,52 @@ function generateBlockCSS( uniqueId, attributes ) {
     css += `}\n\n`;
 
     if ( maskEnabled && maskImageUrl ) {
+        const maskW = maskWidth?.desktop || { value: 480, unit: 'px' };
+        const maskH = maskHeight?.desktop || { value: 420, unit: 'px' };
+        
         css += `.apg-hero-${ uniqueId } .apg-hero__masked-image {\n`;
         css += `    mask-image: url(${ maskImageUrl });\n`;
         css += `    -webkit-mask-image: url(${ maskImageUrl });\n`;
-        css += `    width: ${ maskWidth }px;\n`;
-        css += `    height: ${ maskHeight }px;\n`;
-        css += `}\n\n`;
-
-        if ( maskPositionPreset === 'custom' ) {
-            css += `.apg-hero-${ uniqueId } .apg-hero__masked-image {\n`;
-            if ( maskPositionX !== '' ) {
-                css += `    left: ${ maskPositionX }${ maskPositionXUnit };\n`;
+        css += `    width: ${ maskW.value }${ maskW.unit };\n`;
+        css += `    height: ${ maskH.value }${ maskH.unit };\n`;
+        
+        if ( maskPositionPreset === 'custom' && maskCustomPosition ) {
+            if ( maskCustomPosition.left?.value !== '' ) {
+                css += `    left: ${ maskCustomPosition.left.value }${ maskCustomPosition.left.unit };\n`;
                 css += `    right: auto;\n`;
             }
-            if ( maskPositionY !== '' ) {
-                css += `    top: ${ maskPositionY }${ maskPositionYUnit };\n`;
+            if ( maskCustomPosition.right?.value !== '' ) {
+                css += `    right: ${ maskCustomPosition.right.value }${ maskCustomPosition.right.unit };\n`;
+                css += `    left: auto;\n`;
+            }
+            if ( maskCustomPosition.top?.value !== '' ) {
+                css += `    top: ${ maskCustomPosition.top.value }${ maskCustomPosition.top.unit };\n`;
                 css += `    bottom: auto;\n`;
             }
-            css += `}\n\n`;
+            if ( maskCustomPosition.bottom?.value !== '' ) {
+                css += `    bottom: ${ maskCustomPosition.bottom.value }${ maskCustomPosition.bottom.unit };\n`;
+                css += `    top: auto;\n`;
+            }
         }
+        css += `}\n\n`;
+
+        const maskWTablet = maskWidth?.tablet || { value: 80, unit: '%' };
+        const maskHTablet = maskHeight?.tablet || { value: 50, unit: '%' };
+        css += `@media (max-width: 1024px) {\n`;
+        css += `    .apg-hero-${ uniqueId } .apg-hero__masked-image {\n`;
+        css += `        width: ${ maskWTablet.value }${ maskWTablet.unit };\n`;
+        css += `        height: ${ maskHTablet.value }${ maskHTablet.unit };\n`;
+        css += `    }\n`;
+        css += `}\n\n`;
+
+        const maskWMobile = maskWidth?.mobile || { value: 100, unit: '%' };
+        const maskHMobile = maskHeight?.mobile || { value: 60, unit: '%' };
+        css += `@media (max-width: 767px) {\n`;
+        css += `    .apg-hero-${ uniqueId } .apg-hero__masked-image {\n`;
+        css += `        width: ${ maskWMobile.value }${ maskWMobile.unit };\n`;
+        css += `        height: ${ maskHMobile.value }${ maskHMobile.unit };\n`;
+        css += `    }\n`;
+        css += `}\n`;
     }
 
     css += `@media (max-width: 1024px) {\n`;
@@ -115,29 +139,37 @@ export default function save( { attributes } ) {
         maskedImageUrl,
         maskImageUrl,
         maskPositionPreset,
-        maskPositionX,
-        maskPositionY,
-        maskPositionXUnit,
-        maskPositionYUnit,
+        maskCustomPosition,
         maskWidth,
         maskHeight,
         contentPosition,
         verticalAlign,
         paddingDesktop,
+        paddingTablet,
+        paddingMobile,
         customCSS,
         uniqueID,
     } = attributes;
 
     const getCustomPositionStyle = () => {
-        if ( maskPositionPreset !== 'custom' ) return {};
+        if ( maskPositionPreset !== 'custom' || !maskCustomPosition ) return {};
         const style = {};
-        if ( maskPositionX !== '' ) {
-            style.left = maskPositionX + maskPositionXUnit;
+        
+        if ( maskCustomPosition.left?.value !== '' ) {
+            style.left = maskCustomPosition.left.value + maskCustomPosition.left.unit;
             style.right = 'auto';
         }
-        if ( maskPositionY !== '' ) {
-            style.top = maskPositionY + maskPositionYUnit;
+        if ( maskCustomPosition.right?.value !== '' ) {
+            style.right = maskCustomPosition.right.value + maskCustomPosition.right.unit;
+            style.left = 'auto';
+        }
+        if ( maskCustomPosition.top?.value !== '' ) {
+            style.top = maskCustomPosition.top.value + maskCustomPosition.top.unit;
             style.bottom = 'auto';
+        }
+        if ( maskCustomPosition.bottom?.value !== '' ) {
+            style.bottom = maskCustomPosition.bottom.value + maskCustomPosition.bottom.unit;
+            style.top = 'auto';
         }
         return style;
     };
@@ -158,17 +190,14 @@ export default function save( { attributes } ) {
         maskEnabled,
         maskImageUrl,
         maskPositionPreset,
-        maskPositionX,
-        maskPositionY,
-        maskPositionXUnit,
-        maskPositionYUnit,
+        maskCustomPosition,
         maskWidth,
         maskHeight,
         contentPosition,
         verticalAlign,
         paddingDesktop,
-        paddingTablet: attributes.paddingTablet || [200, 24, 48, 24],
-        paddingMobile: attributes.paddingMobile || [180, 20, 40, 20],
+        paddingTablet: paddingTablet || [200, 24, 48, 24],
+        paddingMobile: paddingMobile || [180, 20, 40, 20],
     } ) : '';
     const fullCSS = blockCSS + ( customCSS || '' );
 
