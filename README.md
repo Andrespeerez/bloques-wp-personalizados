@@ -4,10 +4,11 @@ Monorepositorio para crear y gestionar bloques personalizados de Gutenberg para 
 
 ## Bloques Disponibles
 
+Este monorepositorio contiene múltiples bloques personalizados para Gutenberg. Se irán añadiendo nuevos bloques según las necesidades.
+
 ### APG Hero Block
 
 <img width="2203" height="591" alt="image" src="https://github.com/user-attachments/assets/9ab5f30f-dafb-4829-b340-fa996a7eca44" />
-
 
 Bloque Gutenberg para crear secciones hero con imagen con máscara PNG, fondo personalizable y contenido flexible.
 
@@ -20,6 +21,21 @@ Bloque Gutenberg para crear secciones hero con imagen con máscara PNG, fondo pe
 - Diseño responsivo (desktop, tablet, móvil)
 - Tabs estilo Kadence (General, Style, Advanced)
 - CSS generado como clases (no inline styles)
+
+### APG Google Reviews
+
+Bloque para mostrar reseñas de Google Places con diseño de tarjetas. Incluye mock data para preview y conexión directa a la API de Google Places.
+
+**Características:**
+- Visualización de reseñas de Google Places API
+- Mock data para demo y preview en el editor
+- Diseño de tarjetas con avatar, rating (estrellas), texto y tiempo
+- Caché de 24 horas para minimizar llamadas a la API
+- Ordenación por más recientes
+
+### Más bloques en desarrollo...
+
+Consulta `src/blocks/` para ver todos los bloques disponibles.
 
 ## Instalación
 
@@ -39,10 +55,13 @@ npm run build
 ### Usar en WordPress
 
 1. Haz el build: `npm run build`
-2. Copia el bloque que necesites de `dist/` a:
+2. Copia el bloque(s) que necesites de `dist/` a WordPress:
 ```
 wp-content/plugins/[nombre-del-bloque]/
 ```
+3. Activa el plugin en el admin de WordPress
+
+Cada bloque en `dist/` es un plugin de WordPress independiente y autocontenido.
 
 ## Estructura del Proyecto
 
@@ -53,21 +72,36 @@ bloques_personalizados/          # Monorepositorio
 ├── package.json                 # Dependencias compartidas
 ├── webpack.config.js            # Config de build
 ├── src/blocks/                  # Código fuente (desarrollo)
-│   └── apg-hero/
+│   ├── apg-hero/
+│   │   ├── block.json
+│   │   ├── index.js
+│   │   ├── edit.js
+│   │   ├── save.js
+│   │   ├── custom-css-editor.js
+│   │   ├── style.scss
+│   │   └── editor.scss
+│   └── apg-google-reviews/
 │       ├── block.json
+│       ├── render.php
+│       ├── mock-data.php
 │       ├── index.js
 │       ├── edit.js
 │       ├── save.js
-│       ├── custom-css-editor.js
 │       ├── style.scss
 │       └── editor.scss
 └── dist/                       # Build output (listo para producción)
-    └── apg-hero/
-        ├── apg-hero.php
+    ├── apg-hero/
+    │   ├── apg-hero.php
+    │   ├── index.js
+    │   ├── index.asset.php
+    │   └── ...
+    └── apg-google-reviews/
+        ├── apg-google-reviews.php
         ├── index.js
         ├── index.asset.php
-        ├── index.css
-        └── style-index.css
+        ├── render.php
+        ├── mock-data.php
+        └── ...
 ```
 
 ## Añadir Nuevos Bloques
@@ -78,6 +112,8 @@ bloques_personalizados/          # Monorepositorio
 4. Añade estilos en `style.scss` y `editor.scss`
 5. Ejecuta `npm run build`
 6. Copia `dist/[nombre]/` a WordPress
+
+El nombre de la carpeta en `src/blocks/` será el nombre del plugin resultante en `dist/`.
 
 Ver `AGENTS.md` para guidelines de desarrollo con agentes IA.
 
