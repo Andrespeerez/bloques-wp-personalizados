@@ -8,7 +8,8 @@ Este monorepositorio contiene múltiples bloques personalizados para Gutenberg. 
 
 ### APG Hero Block
 
-<img width="2203" height="591" alt="image" src="https://github.com/user-attachments/assets/9ab5f30f-dafb-4829-b340-fa996a7eca44" />
+<img width="333" height="667" alt="image" src="https://github.com/user-attachments/assets/cfa404a4-269f-455e-9c0a-c3e7d0d973a1" />
+<img width="1217" height="334" alt="image" src="https://github.com/user-attachments/assets/63d5db74-a88e-4b4a-be19-43ec56303f4f" />
 
 Bloque Gutenberg para crear secciones hero con imagen con máscara PNG, fondo personalizable y contenido flexible.
 
@@ -23,6 +24,8 @@ Bloque Gutenberg para crear secciones hero con imagen con máscara PNG, fondo pe
 - CSS generado como clases (no inline styles)
 
 ### APG Google Reviews
+
+<img width="1215" height="475" alt="image" src="https://github.com/user-attachments/assets/5906ff1b-7d44-44f7-881f-dd536036bcb7" />
 
 Bloque para mostrar reseñas de Google Places con diseño de tarjetas. Incluye mock data para preview y conexión directa a la API de Google Places.
 
