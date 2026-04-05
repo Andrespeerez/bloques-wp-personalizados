@@ -318,6 +318,173 @@ $is_demo = empty($place_id) && empty($api_key);
 
 ---
 
+## Editor-Side API Fetch
+
+Some blocks need to fetch data in the editor for live preview. This section shows how to handle API calls in `edit.js` while still using server-side render for the frontend.
+
+### When to Use This Pattern
+
+- **Live preview**: Show real data in the editor (not just placeholder)
+- **API validation**: Verify API credentials work before saving
+- **Demo mode**: Display mock data when no credentials provided
+
+### edit.js with API Fetch
+
+```javascript
+import { __ } from '@wordpress/i18n';
+import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import { PanelBody, RangeControl, ColorPicker } from '@wordpress/components';
+import { useState, useEffect } from '@wordpress/element';
+import CustomCSSEditor from './custom-css-editor';
+
+function generateUniqueId(prefix = 'apg') {
+    return prefix + '-' + Math.random().toString(36).substring(2, 9);
+}
+
+function generateBlockCSS(uniqueId, attributes) {
+    const { cardBackgroundColor, padding, borderRadius } = attributes;
+
+    let css = `.apg-ricky-morty-${uniqueId} {\n`;
+    css += `    --card-bg: ${cardBackgroundColor};\n`;
+    css += `    --card-padding: ${padding}px;\n`;
+    css += `    --card-radius: ${borderRadius}px;\n`;
+    css += `}\n\n`;
+
+    return css;
+}
+
+function CharacterCard({ character }) {
+    const statusColor = character.status === 'Alive' ? '#4caf50' : 
+                        character.status === 'Dead' ? '#f44336' : '#9e9e9e';
+
+    return (
+        <li className="apg-card">
+            <img src={character.image} alt={character.name} />
+            <h3>{character.name}</h3>
+            <span style={{ color: statusColor }}>{character.status}</span>
+        </li>
+    );
+}
+
+export default function Edit({ attributes, setAttributes }) {
+    const { uniqueID, cantidad, padding, borderRadius, cardBackgroundColor, customCSS } = attributes;
+    const [characters, setCharacters] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    // Generate unique ID on mount
+    useEffect(() => {
+        if (!uniqueID) {
+            setAttributes({ uniqueID: generateUniqueId() });
+        }
+    }, []);
+
+    // Fetch data when cantidad changes
+    useEffect(() => {
+        if (characters.length === 0 && cantidad > 0) {
+            setLoading(true);
+            fetch('https://rickandmortyapi.com/api/character/?limit=20')
+                .then(res => res.json())
+                .then(data => {
+                    setCharacters(data.results || []);
+                    setLoading(false);
+                })
+                .catch(() => setLoading(false));
+        }
+    }, [cantidad]);
+
+    const displayCharacters = characters.slice(0, cantidad);
+    const blockCSS = uniqueID ? generateBlockCSS(uniqueID, attributes) : '';
+    const fullCSS = blockCSS + (customCSS || '');
+
+    return (
+        <div {...useBlockProps()}>
+            <InspectorControls>
+                <PanelBody title={__('Settings', 'textdomain')}>
+                    <RangeControl
+                        label={__('Quantity', 'textdomain')}
+                        value={cantidad}
+                        onChange={(value) => setAttributes({ cantidad: value })}
+                        min={1}
+                        max={20}
+                    />
+                    <ColorPicker
+                        label={__('Background Color', 'textdomain')}
+                        value={cardBackgroundColor}
+                        onChange={(value) => setAttributes({ cardBackgroundColor: value })}
+                    />
+                    <RangeControl
+                        label={__('Padding', 'textdomain')}
+                        value={padding}
+                        onChange={(value) => setAttributes({ padding: value })}
+                        min={0}
+                        max={50}
+                    />
+                    <RangeControl
+                        label={__('Border Radius', 'textdomain')}
+                        value={borderRadius}
+                        onChange={(value) => setAttributes({ borderRadius: value })}
+                        min={0}
+                        max={30}
+                    />
+                </PanelBody>
+            </InspectorControls>
+
+            {fullCSS && <style>{fullCSS}</style>}
+
+            <div className={`apg-block-${uniqueID}`}>
+                {loading && <p>Cargando...</p>}
+                {!loading && displayCharacters.map(char => (
+                    <CharacterCard key={char.id} character={char} />
+                ))}
+            </div>
+        </div>
+    );
+}
+```
+
+### Key Differences from Server-Only Pattern
+
+| Aspect | Server-Only | Editor + Server |
+|--------|-------------|-----------------|
+| Fetch location | PHP only | JavaScript in edit.js |
+| Preview | Placeholder or mock | Live data |
+| Frontend | render.php | render.php |
+| Complexity | Lower | Higher |
+
+### Important: API Keys and Paid APIs
+
+**DO NOT call APIs requiring credentials from edit.js**
+
+Calling APIs in the editor means:
+- API keys become visible in browser network tab / source code
+- Every block edit triggers API calls (billing/rate limits)
+- Users without credentials can't see preview
+
+| API Type | Editor Fetch | Recommended Approach |
+|----------|--------------|----------------------|
+| Public, no auth | ✅ OK | Fetch in edit.js for live preview |
+| Requires API key | ❌ Avoid | Use mock data in edit.js, real fetch only in PHP |
+| Paid/Quota | ❌ Avoid | Server-only fetch with caching |
+
+### Correct Pattern for Private APIs
+
+```javascript
+// In edit.js - use mock data only
+const MOCK_CHARACTERS = [
+    { id: 1, name: 'Rick Sanchez', status: 'Alive', species: 'Human', image: '...' },
+    // ... more mock items
+];
+
+useEffect(() => {
+    // Don't fetch real API here if it requires credentials
+    setCharacters(MOCK_CHARACTERS); // Always use mock for private APIs
+}, []);
+```
+
+The real API call happens only in `render.php` where credentials are protected server-side.
+
+---
+
 ## Common Issues
 
 | Issue | Solution |
