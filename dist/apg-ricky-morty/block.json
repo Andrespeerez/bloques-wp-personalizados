@@ -1,0 +1,46 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "create-block/apg-ricky-morty",
+	"version": "0.1.0",
+	"title": "Apg Ricky Morty",
+	"category": "design",
+	"icon": "smiley",
+	"description": "Bloque para cargar cards de personajes de Ricky y Morty",
+	"example": {},
+	"supports": {
+		"html": false
+	},
+	"attributes": {
+		"uniqueID": {
+			"type": "string",
+			"default": ""
+		},
+		"cantidad": {
+			"type": "number",
+			"default": 4
+		},
+		"padding": {
+			"type": "number",
+			"default": 20
+		},
+		"border-radius": {
+			"type": "number",
+			"default": 12
+		},
+		"cardBackgroundColor" : {
+			"type": "string",
+			"default": "#fafafa"
+		},
+		"customCSS": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"textdomain": "apg-ricky-morty",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js",
+	"render": "file:./render.php"
+}

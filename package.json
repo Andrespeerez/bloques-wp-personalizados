@@ -11,15 +11,15 @@
 		"lint:css": "wp-scripts lint-style"
 	},
 	"dependencies": {
-		"@codemirror/lang-css": "^6.2.1",
-		"@codemirror/state": "^6.4.1",
-		"@codemirror/view": "^6.26.0",
 		"@codemirror/autocomplete": "^6.15.0",
 		"@codemirror/commands": "^6.3.3",
+		"@codemirror/lang-css": "^6.2.1",
 		"@codemirror/language": "^6.10.1",
+		"@codemirror/state": "^6.4.1",
+		"@codemirror/view": "^6.26.0",
 		"codemirror": "^6.0.1"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^30.0.0"
+		"@wordpress/scripts": "^30.27.0"
 	}
 }

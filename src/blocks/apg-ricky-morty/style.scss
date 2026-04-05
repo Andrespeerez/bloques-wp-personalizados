@@ -1,0 +1,63 @@
+.apg-ricky-morty-list {
+    display: grid;
+    grid-template-columns: repeat( auto-fill, minmax( 280px, 1fr ) );
+    gap: 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.apg-ricky-morty-card {
+    background-color: var( --card-bg, #fafafa );
+    border-radius: var( --card-radius, 12px );
+    padding: var( --card-padding, 20px );
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.apg-ricky-morty-card:hover {
+    transform: translateY( -4px );
+    box-shadow: 0 8px 24px rgba( 0, 0, 0, 0.12 );
+}
+
+.apg-ricky-morty-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.apg-ricky-morty-header img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.apg-ricky-morty-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.apg-ricky-morty-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+    color: #666;
+}
+
+.apg-ricky-morty-status {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+.apg-ricky-morty-species,
+.apg-ricky-morty-gender {
+    font-size: 13px;
+}

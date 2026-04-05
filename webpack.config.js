@@ -2,7 +2,7 @@ const defaultConfig = require( '@wordpress/scripts/config/webpack.config' );
 const path = require( 'path' );
 const fs = require( 'fs' );
 
-const blocks = ['apg-hero', 'apg-google-reviews'];
+const blocks = ['apg-hero', 'apg-google-reviews', 'apg-ricky-morty'];
 
 const copyBlockAssetsPlugin = () => ({
 	apply(compiler) {
@@ -15,7 +15,7 @@ const copyBlockAssetsPlugin = () => ({
 					fs.mkdirSync(destDir, { recursive: true });
 				}
 
-				const extraFiles = blockName === 'apg-google-reviews' ? ['mock-data.php', 'render.php'] : [];
+				const extraFiles = blockName === 'apg-google-reviews' ? ['mock-data.php', 'render.php'] : (blockName === 'apg-ricky-morty' ? ['render.php'] : []);
 				const filesToCopy = ['block.json', `${blockName}.php`, ...extraFiles];
 				filesToCopy.forEach(file => {
 					const src = path.resolve(srcDir, file);
