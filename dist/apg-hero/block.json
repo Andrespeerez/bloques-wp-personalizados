@@ -18,6 +18,18 @@
 			"type": "string",
 			"default": ""
 		},
+		"heightType": {
+			"type": "string",
+			"default": "full"
+		},
+		"heightValue": {
+			"type": "number",
+			"default": 100
+		},
+		"heightUnit": {
+			"type": "string",
+			"default": "vh"
+		},
 		"backgroundType": {
 			"type": "string",
 			"default": "color"

@@ -73,6 +73,9 @@ function generateUniqueId( prefix = 'apg' ) {
 
 function generateBlockCSS( uniqueId, attributes ) {
     const {
+        heightType,
+        heightValue,
+        heightUnit,
         backgroundType,
         backgroundColor,
         backgroundGradient,
@@ -97,6 +100,15 @@ function generateBlockCSS( uniqueId, attributes ) {
 
     let css = `.apg-hero-${ uniqueId } {\n`;
     css += `    background-color: ${ backgroundColor || '#0d1b3e' };\n`;
+    
+    if ( heightType === 'full' ) {
+        css += `    height: 100vh;\n`;
+    } else if ( heightType === 'custom' && heightValue ) {
+        css += `    height: ${ heightValue }${ heightUnit };\n`;
+    } else if ( heightType === 'auto' ) {
+        css += `    height: auto;\n`;
+        css += `    min-height: 0;\n`;
+    }
     
     if ( backgroundType === 'gradient' && backgroundGradient ) {
         css += `    background-image: ${ backgroundGradient };\n`;
@@ -135,8 +147,6 @@ function generateBlockCSS( uniqueId, attributes ) {
         const maskH = maskHeight?.desktop || { value: 420, unit: 'px' };
         
         css += `.apg-hero-${ uniqueId } .apg-hero__masked-image {\n`;
-        css += `    mask-image: url(${ maskImageUrl });\n`;
-        css += `    -webkit-mask-image: url(${ maskImageUrl });\n`;
         css += `    width: ${ maskW.value }${ maskW.unit };\n`;
         css += `    height: ${ maskH.value }${ maskH.unit };\n`;
         
@@ -158,6 +168,18 @@ function generateBlockCSS( uniqueId, attributes ) {
                 css += `    top: auto;\n`;
             }
         }
+        css += `}\n\n`;
+
+        css += `.apg-hero-${ uniqueId } .apg-hero__masked-image img {\n`;
+        css += `    width: 100%;\n`;
+        css += `    height: 100%;\n`;
+        css += `    object-fit: cover;\n`;
+        css += `    mask-image: url(${ maskImageUrl });\n`;
+        css += `    -webkit-mask-image: url(${ maskImageUrl });\n`;
+        css += `    mask-repeat: no-repeat;\n`;
+        css += `    -webkit-mask-repeat: no-repeat;\n`;
+        css += `    mask-size: 100% 100%;\n`;
+        css += `    -webkit-mask-size: 100% 100%;\n`;
         css += `}\n\n`;
 
         const maskWTablet = maskWidth?.tablet || { value: 80, unit: '%' };
@@ -196,6 +218,9 @@ function generateBlockCSS( uniqueId, attributes ) {
 
 export default function Edit( { attributes, setAttributes, clientId } ) {
     const {
+        heightType,
+        heightValue,
+        heightUnit,
         backgroundType,
         backgroundColor,
         backgroundGradient,
@@ -729,7 +754,42 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
                         </PanelBody>
 
                         <PanelBody title={ __( 'Layout', 'apg-hero' ) } initialOpen={ false }>
-                            <p style={ { fontWeight: 'bold', margin: '0 0 8px 0' } }>{ __( 'Content Max Width', 'apg-hero' ) }</p>
+                            <SelectControl
+                                label={ __( 'Height Type', 'apg-hero' ) }
+                                value={ heightType }
+                                options={ [
+                                    { value: 'full', label: __( 'Full Height (100vh)', 'apg-hero' ) },
+                                    { value: 'custom', label: __( 'Custom', 'apg-hero' ) },
+                                    { value: 'auto', label: __( 'Auto (content based)', 'apg-hero' ) },
+                                ] }
+                                onChange={ ( value ) => setAttributes( { heightType: value } ) }
+                            />
+
+                            { heightType === 'custom' && (
+                                <div style={ { display: 'grid', gridTemplateColumns: '1fr auto 60px', gap: '8px', alignItems: 'center', marginTop: '12px' } }>
+                                    <input
+                                        type="number"
+                                        value={ heightValue ?? 100 }
+                                        onChange={ ( e ) => setAttributes( { heightValue: parseFloat( e.target.value ) || 0 } ) }
+                                        min={ 0 }
+                                        style={ { width: '100%', padding: '4px 8px' } }
+                                    />
+                                    <SelectControl
+                                        value={ heightUnit ?? 'vh' }
+                                        options={ [
+                                            { value: 'vh', label: 'vh' },
+                                            { value: 'dvh', label: 'dvh' },
+                                            { value: 'svh', label: 'svh' },
+                                            { value: 'px', label: 'px' },
+                                            { value: '%', label: '%' },
+                                        ] }
+                                        onChange={ ( value ) => setAttributes( { heightUnit: value } ) }
+                                        style={ { width: '60px', margin: 0 } }
+                                    />
+                                </div>
+                            ) }
+
+                            <p style={ { fontWeight: 'bold', margin: '16px 0 8px 0' } }>{ __( 'Content Max Width', 'apg-hero' ) }</p>
                             <div style={ { display: 'grid', gridTemplateColumns: '1fr auto 80px', gap: '8px', alignItems: 'center', marginBottom: '16px' } }>
                                 <input
                                     type="number"

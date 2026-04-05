@@ -8,6 +8,9 @@ import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 
 function generateBlockCSS( uniqueId, attributes ) {
     const {
+        heightType,
+        heightValue,
+        heightUnit,
         backgroundType,
         backgroundColor,
         backgroundGradient,
@@ -32,6 +35,15 @@ function generateBlockCSS( uniqueId, attributes ) {
 
     let css = `.apg-hero-${ uniqueId } {\n`;
     css += `    background-color: ${ backgroundColor || '#0d1b3e' };\n`;
+    
+    if ( heightType === 'full' ) {
+        css += `    height: 100vh;\n`;
+    } else if ( heightType === 'custom' && heightValue ) {
+        css += `    height: ${ heightValue }${ heightUnit };\n`;
+    } else if ( heightType === 'auto' ) {
+        css += `    height: auto;\n`;
+        css += `    min-height: 0;\n`;
+    }
     
     if ( backgroundType === 'gradient' && backgroundGradient ) {
         css += `    background-image: ${ backgroundGradient };\n`;
@@ -70,8 +82,6 @@ function generateBlockCSS( uniqueId, attributes ) {
         const maskH = maskHeight?.desktop || { value: 420, unit: 'px' };
         
         css += `.apg-hero-${ uniqueId } .apg-hero__masked-image {\n`;
-        css += `    mask-image: url(${ maskImageUrl });\n`;
-        css += `    -webkit-mask-image: url(${ maskImageUrl });\n`;
         css += `    width: ${ maskW.value }${ maskW.unit };\n`;
         css += `    height: ${ maskH.value }${ maskH.unit };\n`;
         
@@ -93,6 +103,18 @@ function generateBlockCSS( uniqueId, attributes ) {
                 css += `    top: auto;\n`;
             }
         }
+        css += `}\n\n`;
+
+        css += `.apg-hero-${ uniqueId } .apg-hero__masked-image img {\n`;
+        css += `    width: 100%;\n`;
+        css += `    height: 100%;\n`;
+        css += `    object-fit: cover;\n`;
+        css += `    mask-image: url(${ maskImageUrl });\n`;
+        css += `    -webkit-mask-image: url(${ maskImageUrl });\n`;
+        css += `    mask-repeat: no-repeat;\n`;
+        css += `    -webkit-mask-repeat: no-repeat;\n`;
+        css += `    mask-size: 100% 100%;\n`;
+        css += `    -webkit-mask-size: 100% 100%;\n`;
         css += `}\n\n`;
 
         const maskWTablet = maskWidth?.tablet || { value: 80, unit: '%' };
@@ -131,6 +153,9 @@ function generateBlockCSS( uniqueId, attributes ) {
 
 export default function save( { attributes } ) {
     const {
+        heightType,
+        heightValue,
+        heightUnit,
         backgroundType,
         backgroundColor,
         backgroundGradient,
@@ -184,6 +209,9 @@ export default function save( { attributes } ) {
     } );
 
     const blockCSS = uniqueID ? generateBlockCSS( uniqueID, {
+        heightType,
+        heightValue,
+        heightUnit,
         backgroundType,
         backgroundColor,
         backgroundGradient,
