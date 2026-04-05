@@ -330,6 +330,97 @@ $is_demo = empty($place_id) && empty($api_key);
 
 ---
 
+## Dynamic CSS for Server-Side Rendered Blocks
+
+### The Problem
+
+When using `"render": "file:./render.php"` in block.json, WordPress **completely ignores the save.js output** in the frontend. Only `render.php` is used.
+
+This means:
+- Any CSS generated in `save.js` (like `generateBlockCSS()`) **never reaches the frontend**
+- The frontend only sees what `render.php` outputs
+
+### Solution: Generate CSS in PHP
+
+For blocks with server-side render, CSS must be generated in `render.php`:
+
+#### 1. Use Custom Properties in SCSS
+
+In `style.scss`, use CSS custom properties with defaults:
+
+```scss
+.apg-google-reviews-card {
+    background-color: var(--apg-card-bg, #ffffff);
+    color: var(--apg-card-text, #1a1a1a);
+    border-radius: var(--apg-card-radius, 12px);
+}
+```
+
+This provides fallback values so basic styles work even without dynamic CSS.
+
+#### 2. Generate CSS in render.php
+
+```php
+if ( ! function_exists( 'apg_generate_block_css' ) ) {
+function apg_generate_block_css( $unique_id, $attributes ) {
+    $defaults = array(
+        'cardBackgroundColor' => '#ffffff',
+        'cardTextColor'       => '#1a1a1a',
+        'cardBorderRadius'    => 12,
+        // ... more attributes
+    );
+
+    $atts = array_merge( $defaults, array_intersect_key( $attributes, $defaults ) );
+
+    $css = ".apg-google-reviews-{$unique_id} {\n";
+    $css .= "    --apg-card-bg: {$atts['cardBackgroundColor']};\n";
+    $css .= "    --apg-card-text: {$atts['cardTextColor']};\n";
+    // ... more CSS variables
+    $css .= "}\n";
+
+    return $css;
+}
+}
+```
+
+#### 3. Inject CSS in render.php
+
+```php
+$block_css = apg_generate_block_css( $unique_id, $attributes );
+$custom_css = isset( $attributes['customCSS'] ) ? $attributes['customCSS'] : '';
+$full_css = $block_css . $custom_css;
+?>
+<?php if ( $full_css ) : ?>
+<style><?php echo $full_css; ?></style>
+<?php endif; ?>
+```
+
+#### 4. Keep save.js Simple
+
+```javascript
+import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
+
+export default function save() {
+    return (
+        <div {...useBlockProps.save()}>
+            <InnerBlocks.Content />
+        </div>
+    );
+}
+```
+
+### Key Learnings
+
+| Concept | Detail |
+|---------|--------|
+| save.js with render PHP | Only stores block wrapper, PHP does all frontend output |
+| CSS source of truth | For server-rendered blocks, PHP is the single source |
+| Custom properties | Use `var(--name, default)` in SCSS for fallback values |
+| Function protection | Always use `if ( ! function_exists() )` to prevent redeclaration errors |
+| Editor preview | CSS in edit.js is for preview only; won't reach frontend |
+
+---
+
 ## Related Skills
 
 - `kadence-style-blocks` - For advanced UI controls
